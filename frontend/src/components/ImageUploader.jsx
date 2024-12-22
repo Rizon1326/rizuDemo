@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Upload, X } from 'lucide-react';
+import CreatePost from "./CreatePost";
 
 const ImageUploader = ({ onImageUpload }) => {
   const [file, setFile] = useState(null);
@@ -8,6 +9,8 @@ const ImageUploader = ({ onImageUpload }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
+  const [captionId, setCaptionId] = useState(null); // Store the caption ID after upload
+  const [createPostEnabled, setCreatePostEnabled] = useState(false); // Toggle for creating a post
 
   const handleFileSelect = (selectedFile) => {
     if (selectedFile && selectedFile.type.startsWith("image/")) {
@@ -46,10 +49,11 @@ const ImageUploader = ({ onImageUpload }) => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Upload failed");
-
       const data = await response.json();
-      
+      console.log("Upload response:", data); // Log the response to verify if captionId is present
+
+      // Save the caption ID for creating post later
+      setCaptionId(data.captionId); // Ensure captionId is set correctly
       onImageUpload({
         imageUrl: data.imageUrl,
         caption: data.message,
@@ -165,6 +169,23 @@ const ImageUploader = ({ onImageUpload }) => {
           )}
         </button>
       </form>
+
+      {/* Render the "Create Post" option if captionId is available */}
+      {captionId && (
+        <div className="mt-4">
+          <label className="inline-flex items-center">
+            <input
+              type="checkbox"
+              checked={createPostEnabled}
+              onChange={() => setCreatePostEnabled(!createPostEnabled)}
+            />
+            <span className="ml-2 text-gray-700">Create Post</span>
+          </label>
+
+          {/* Render the CreatePost component if createPostEnabled is true */}
+          {createPostEnabled && <CreatePost captionId={captionId} />}
+        </div>
+      )}
     </div>
   );
 };

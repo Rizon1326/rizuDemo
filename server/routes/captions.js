@@ -55,7 +55,7 @@ router.post('/search', async (req, res) => {
       }
     });
 
-    res.json(distinctResults.slice(0, 5));  // Return top 10 distinct results
+    res.json(distinctResults.slice(0, 5));  // Return top 5 distinct results
   } catch (err) {
     console.error('Error searching captions:', err);
     res.status(500).json({ message: 'Error searching captions' });

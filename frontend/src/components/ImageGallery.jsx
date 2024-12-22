@@ -33,7 +33,6 @@ const ImageGallery = ({ title, images }) => {
                 {typeof image.similarity === 'number' && (
                   <span className="inline-block bg-blue-100 rounded-full px-3 py-1 text-sm text-blue-600">
                     {/* Match: {(image.similarity * 100).toFixed(0)}% */}
-                   
                   </span>
                 )}
               </div>

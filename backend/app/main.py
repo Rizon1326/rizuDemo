@@ -46,6 +46,9 @@ def generate_embeddings(text):
 
 @app.post("/upload")
 async def upload_image(file: UploadFile = File(...), album: str = None):
+    # return {
+    #     "message": "Image uploaded successfully"
+    # }
     image_bytes = await file.read()
 
     # Upload image to Cloudinary
@@ -54,34 +57,26 @@ async def upload_image(file: UploadFile = File(...), album: str = None):
 
     # Generate caption using Hugging Face
     caption_response = generate_caption(image_bytes)
-    if isinstance(caption_response, list) and "generated_text" in caption_response[0]:
-        generated_caption = caption_response[0]["generated_text"]
-        caption_embedding = generate_embeddings(generated_caption).tolist()
+    return {
+        "message": caption_response
+    }
+    # if await isinstance(caption_response, list) and "generated_text" in caption_response[0]:
+    #     generated_caption = caption_response[0]["generated_text"]
+    #     caption_embedding = await generate_embeddings(generated_caption).tolist()
 
-        # Save to MongoDB via Express backend
-        response = requests.post("http://localhost:5000/api/captions", json={
-            "imageName": file.filename,
-            "imageUrl": image_url,
-            "caption": generated_caption,
-            "album": album,
-            "embedding": caption_embedding
-        })
+    #     # Save to MongoDB via Express backend
+    #     response = await requests.post("http://localhost:5000/api/captions", json={
+    #         "imageName": file.filename,
+    #         "imageUrl": image_url,
+    #         "caption": generated_caption,
+    #         "album": album,
+    #         "embedding": caption_embedding
+    #     })
 
-        if response.status_code == 201:
-            return {"message": "Image and caption saved successfully", "imageUrl": image_url}
-        else:
-            raise HTTPException(status_code=500, detail="Failed to save caption and image.")
-    else:
-        raise HTTPException(status_code=500, detail="Failed to generate caption.")
-
-@app.get("/search")
-async def search_captions(query: str = Query(...)):
-    query_embedding = generate_embeddings(query).tolist()
-
-    # Send both the query text and the embedding to the Express backend
-    response = requests.post("http://localhost:5000/api/captions/search", json={
-        "query_embedding": query_embedding,
-        "query_text": query
-    })
-    
-    return response.json()
+    #     if response.status_code == 201:
+    #         # Return image URL and caption ID
+    #         return {"message": "Image and caption saved successfully", "imageUrl": image_url, "captionId": response.json().get("captionId")}
+    #     else:
+    #         raise HTTPException(status_code=500, detail="Failed to save caption and image.")
+    # else:
+    #     raise HTTPException(status_code=500, detail="Failed to generate caption.")
